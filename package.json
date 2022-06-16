@@ -1,0 +1,19 @@
+{
+  "name": "rss2022-crud-api",
+  "version": "1.0.0",
+  "description": "Implementing a simple CRUD API using an in-memory database",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MatusVit/rss2022-crud-api.git"
+  },
+  "author": "MatusVit",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MatusVit/rss2022-crud-api/issues"
+  },
+  "homepage": "https://github.com/MatusVit/rss2022-crud-api#readme"
+}
