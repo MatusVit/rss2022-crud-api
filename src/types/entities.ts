@@ -1,11 +1,25 @@
-interface IUser {
-  id: string;
+import { IMemoryDB } from 'DB/MemoryDatabase';
+import { IncomingMessage, ServerResponse } from 'http';
+
+export interface IUser {
+  id?: string;
   username: string;
   age: number;
   hobbies: Array<string>;
 }
 
+export const enum HTTP_METHOD {
+  GET = 'GET',
+  POST = 'POST',
+  PUT = 'PUT',
+  DELETE = 'DELETE',
+}
+
+export interface IEndpoints {
+  [HTTP_METHOD: string]: (req: IncomingMessage, res: ServerResponse, userId: string, userDB: IMemoryDB) => void | null;
+}
+
 enum RESULT_STATUS {
-  SUCCESS,
-  ERROR,
+  SUCCESS = 'SUCCESS',
+  ERROR = 'ERROR',
 }
