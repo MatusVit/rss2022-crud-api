@@ -1,15 +1,20 @@
+import { IUser } from 'types/entities';
 import { IncomingMessage, ServerResponse } from 'http';
 import { validate as uuidValidate } from 'uuid';
 
 import { IMemoryDB } from 'DB/MemoryDatabase';
 
-export const handleGetUsers = (req: IncomingMessage, res: ServerResponse, userId: string, userDB: IMemoryDB): void => {
+export const handleDeleteUsers = (
+  req: IncomingMessage,
+  res: ServerResponse,
+  userId: string,
+  userDB: IMemoryDB
+): void => {
   const correctUserId = userId.replaceAll('/', '');
 
   if (!correctUserId) {
-    const users = userDB.getAll();
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(users));
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end(`${req.method} ${req.url} non-existing endpoint`);
     return;
   }
 
@@ -19,7 +24,7 @@ export const handleGetUsers = (req: IncomingMessage, res: ServerResponse, userId
     return;
   }
 
-  const user = userDB.get(correctUserId);
+  const user = userDB.delete(correctUserId);
 
   if (user === null) {
     res.writeHead(404, { 'Content-Type': 'text/plain' });
@@ -27,6 +32,6 @@ export const handleGetUsers = (req: IncomingMessage, res: ServerResponse, userId
     return;
   }
 
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify(user));
+  res.statusCode = 204;
+  res.end();
 };

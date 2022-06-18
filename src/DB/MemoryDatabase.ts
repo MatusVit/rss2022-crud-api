@@ -2,15 +2,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { IUser } from 'types/entities';
 
 type uid = string | null;
-// type resultObject = { result: RESULT_STATUS; id?: uid; users?: IUser[]; user?: IUser; massage?: string };
 
 export interface IMemoryDB {
-  // usersStore: { [key: string]: IUser };
   getAll: () => IUser[];
   get: (userId: string) => IUser | null;
   add: (user: IUser) => IUser;
-  // update: () => resultObject;
-  // delete: (userId: string) => resultObject;
+  update: (userId: string, user: Required<IUser>) => IUser | null;
+  delete: (userId: string) => IUser | null;
 }
 
 export class MemoryDB implements IMemoryDB {
@@ -24,22 +22,30 @@ export class MemoryDB implements IMemoryDB {
     return Object.values(this._usersStore);
   };
 
-  public add = (user: IUser) => {
-    const userId = uuidv4();
-    this._usersStore[userId] = { ...user, id: userId };
-    return this._usersStore[userId];
-  };
-
   public get = (userId: string) => {
     const user = this._usersStore[userId];
     if (user) return user;
     return null;
   };
 
-  // public update = (user: IUser) => {
-  //   if (user.id && this._usersStore[user.id]) {
+  public add = (user: IUser) => {
+    const userId = uuidv4();
+    this._usersStore[userId] = { ...user, id: userId };
+    return this._usersStore[userId];
+  };
 
-  //   }
-  //   return { result: RESULT_STATUS.ERROR, massage: `User with id:"${userId}" doesn't exist exists` };
-  // };
+  public update = (userId: string, user: IUser) => {
+    const updatingUser = this._usersStore[userId];
+    if (!updatingUser) return null;
+    this._usersStore[userId] = { ...updatingUser, ...user, id: userId };
+    return this._usersStore[userId];
+  };
+
+  public delete = (userId: string) => {
+    const user = this._usersStore[userId];
+    if (user) {
+      return delete this._usersStore[userId] ? user : null;
+    }
+    return null;
+  };
 }
