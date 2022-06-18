@@ -15,20 +15,25 @@ const server = http.createServer((request: IncomingMessage, response: ServerResp
 
   let isValidUrl = false;
 
-  if (url && method && url.startsWith(USERS_URL)) {
-    const handle = getHandle(method);
+  try {
+    if (url && method && url.startsWith(USERS_URL)) {
+      const handle = getHandle(method);
 
-    if (handle !== null) {
-      const userId = url.slice(USERS_URL.length);
+      if (handle !== null) {
+        const userId = url.slice(USERS_URL.length);
 
-      handle(request, response, userId, userDB);
-      isValidUrl = true;
+        handle(request, response, userId, userDB);
+        isValidUrl = true;
+      }
     }
-  }
 
-  if (!isValidUrl) {
-    response.writeHead(404, { 'Content-Type': 'text/plain' });
-    response.end(`Request ${method} ${url} doesn't exists`);
+    if (!isValidUrl) {
+      response.writeHead(404, { 'Content-Type': 'text/plain' });
+      response.end(`Request ${method} ${url} doesn't exists`);
+    }
+  } catch (error) {
+    response.writeHead(500, { 'Content-Type': 'text/plain' });
+    response.end(`Internal Server Error`);
   }
 });
 

@@ -42,6 +42,7 @@ export class MemoryDB implements IMemoryDB {
   };
 
   public delete = (userId: string) => {
+    // throw new Error('Oops!!!');
     const user = this._usersStore[userId];
     if (user) {
       return delete this._usersStore[userId] ? user : null;
