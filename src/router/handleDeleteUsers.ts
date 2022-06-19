@@ -1,36 +1,24 @@
+import { HTTPError } from './../errors/errors';
 import { IUser } from 'types/entities';
 import { IncomingMessage, ServerResponse } from 'http';
 import { validate as uuidValidate } from 'uuid';
 
 import { IMemoryDB } from 'DB/MemoryDatabase';
 
-export const handleDeleteUsers = (
+export const handleDeleteUsers = async (
   req: IncomingMessage,
   res: ServerResponse,
   userId: string,
   userDB: IMemoryDB
-): void => {
-  const correctUserId = userId.replaceAll('/', '');
+): Promise<void> => {
+  const correctUserId = userId as string;
 
-  if (!correctUserId) {
-    res.writeHead(404, { 'Content-Type': 'text/plain' });
-    res.end(`${req.method} ${req.url} non-existing endpoint`);
-    return;
-  }
+  if (!uuidValidate(correctUserId)) throw new HTTPError(`UserId ${correctUserId} is invalid. Not uuid.`, 400);
 
-  if (!uuidValidate(correctUserId)) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end(`UserId "${correctUserId}" is invalid. Not uuid.`);
-    return;
-  }
+  const user = userDB.get(correctUserId);
+  if (user === null) throw new HTTPError(`User with id ${correctUserId} doesn't exist.`, 404);
 
-  const user = userDB.delete(correctUserId);
-
-  if (user === null) {
-    res.writeHead(404, { 'Content-Type': 'text/plain' });
-    res.end(`User with id "${correctUserId}" doesn't exist.`);
-    return;
-  }
+  userDB.delete(correctUserId);
 
   res.statusCode = 204;
   res.end();

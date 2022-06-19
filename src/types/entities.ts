@@ -16,8 +16,15 @@ export const enum HTTP_METHOD {
 }
 
 export interface IEndpoints {
-  [HTTP_METHOD: string]: (req: IncomingMessage, res: ServerResponse, userId: string, userDB: IMemoryDB) => void | null;
+  [HTTP_METHOD: string]: (
+    req: IncomingMessage,
+    res: ServerResponse,
+    userId: string,
+    userDB: IMemoryDB
+  ) => void | Promise<unknown>;
 }
+
+export type UserId = string | undefined;
 
 enum RESULT_STATUS {
   SUCCESS = 'SUCCESS',

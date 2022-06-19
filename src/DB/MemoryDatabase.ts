@@ -7,7 +7,7 @@ export interface IMemoryDB {
   getAll: () => IUser[];
   get: (userId: string) => IUser | null;
   add: (user: IUser) => IUser;
-  update: (userId: string, user: Required<IUser>) => IUser | null;
+  update: (userId: string, user: IUser) => IUser | null;
   delete: (userId: string) => IUser | null;
 }
 

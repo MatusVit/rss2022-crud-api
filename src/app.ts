@@ -1,8 +1,8 @@
+import http, { IncomingMessage, ServerResponse } from 'http';
+import { handleErrors } from './errors/errors';
 import { getHandle } from './router/endpoints';
 import { MemoryDB } from './DB/MemoryDatabase';
-import http, { IncomingMessage, ServerResponse } from 'http';
-
-const USERS_URL = '/api/users';
+import { UserId } from './types/entities';
 
 const PORT = process.env.PORT || 5000;
 
@@ -11,34 +11,20 @@ export const runServer = (userDB: MemoryDB) => {
     .createServer((request: IncomingMessage, response: ServerResponse) => {
       const { url, method } = request;
 
-      let isValidUrl = false;
-
       try {
-        if (url && method && url.startsWith(USERS_URL)) {
-          const handle = getHandle(method);
+        const urlArray = (url as string).split('/').filter((item) => item);
+        const handle = getHandle(method, urlArray, url);
+        const userId: UserId = urlArray[2];
 
-          if (handle !== null) {
-            const userId = url.slice(USERS_URL.length);
-
-            handle(request, response, userId, userDB);
-            isValidUrl = true;
-          }
-        }
-
-        if (!isValidUrl) {
-          response.writeHead(404, { 'Content-Type': 'text/plain' });
-          response.end(`Request ${method} ${url} doesn't exists`);
-        }
+        handle(request, response, userId, userDB).catch((error: unknown) => handleErrors(error as Error, response));
       } catch (error) {
-        // console.log('app', error); // ! ***
-        response.writeHead(500, { 'Content-Type': 'text/plain' });
-        response.end(`Internal Server Error`);
+        handleErrors(error as Error, response);
       }
     })
     .listen(PORT, () => {
       console.log(`Server started on PORT ${PORT} http://localhost:${PORT}/`);
     })
     .on('error', (error) => {
-      console.log('Error', error);
+      console.log('Error http server', error);
     });
 };

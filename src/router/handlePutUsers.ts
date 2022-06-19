@@ -1,44 +1,41 @@
+import { IUser } from 'types/entities';
+import { getRequestData, checkUserObject } from './../utils/common';
+import { HTTPError } from './../errors/errors';
 import { IncomingMessage, ServerResponse } from 'http';
 import { validate as uuidValidate } from 'uuid';
 
 import { IMemoryDB } from 'DB/MemoryDatabase';
 
-export const handlePutUsers = (req: IncomingMessage, res: ServerResponse, userId: string, userDB: IMemoryDB): void => {
-  const correctUserId = userId.replaceAll('/', '');
+export const handlePutUsers = async (
+  req: IncomingMessage,
+  res: ServerResponse,
+  userId: string,
+  userDB: IMemoryDB
+): Promise<void> => {
+  const correctUserId = userId as string;
 
-  if (!uuidValidate(correctUserId)) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end(`UserId "${correctUserId}" is invalid. Not uuid.`);
-    return;
-  }
+  try {
+    if (!uuidValidate(correctUserId)) throw new HTTPError(`UserId ${correctUserId} is invalid. Not uuid.`, 400);
 
-  let data = '';
-  req.on('data', (chunk) => (data += chunk));
+    const user = userDB.get(correctUserId);
+    if (user === null) throw new HTTPError(`User with id ${correctUserId} doesn't exist.`, 404);
 
-  req.on('end', () => {
-    try {
-      if (req.headers['content-type'] === 'application/json') {
-        const newUser = JSON.parse(data);
+    const userObject = await getRequestData(req);
 
-        // todo *** check user fields are valid in newUser
-        const user = userDB.update(correctUserId, newUser);
+    const isCorrectUser = checkUserObject(userObject);
 
-        if (user === null) {
-          res.writeHead(404, { 'Content-Type': 'text/plain' });
-          res.end(`User with id "${correctUserId}" doesn't exist.`);
-          return;
-        }
-
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(user));
-        return;
-      }
-
-      res.writeHead(400, { 'Content-Type': 'text/plain' });
-      res.end(`User object contain incorrect field`);
-    } catch (error) {
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      res.end(`User object object is invalid`);
+    if (!isCorrectUser) {
+      throw new HTTPError(`User object doesn't contain required fields or incorrect field`, 400);
     }
-  });
+
+    const newUser = userDB.update(correctUserId, userObject as IUser);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(newUser));
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      throw new HTTPError('User object is invalid', 400);
+    } else {
+      throw error;
+    }
+  }
 };

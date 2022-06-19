@@ -1,4 +1,5 @@
-import { HTTP_METHOD, IEndpoints } from 'types/entities';
+import { HTTPError } from './../errors/errors';
+import { HTTP_METHOD, IEndpoints } from '../types/entities';
 
 import { handleDeleteUsers } from './handleDeleteUsers';
 import { handleGetUsers } from './handleGetUsers';
@@ -12,9 +13,9 @@ const endpoints: IEndpoints = {
   [HTTP_METHOD.DELETE]: handleDeleteUsers,
 };
 
-export const getHandle = (method: string): Function | null => {
-  if (endpoints[method]) {
+export const getHandle = (method: string | undefined, urlArray: string[], url: string | undefined): Function => {
+  if (method && urlArray[0] === 'api' && urlArray[1] === 'users' && endpoints[method]) {
     return endpoints[method];
   }
-  return null;
+  throw new HTTPError(`Non-existing endpoint ${method} ${url}`, 404);
 };

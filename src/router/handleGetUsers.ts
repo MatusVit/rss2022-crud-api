@@ -1,31 +1,30 @@
+import { HTTPError } from './../errors/errors';
+import { UserId } from 'types/entities';
 import { IncomingMessage, ServerResponse } from 'http';
 import { validate as uuidValidate } from 'uuid';
 
 import { IMemoryDB } from 'DB/MemoryDatabase';
 
-export const handleGetUsers = (req: IncomingMessage, res: ServerResponse, userId: string, userDB: IMemoryDB): void => {
-  const correctUserId = userId.replaceAll('/', '');
-
-  if (!correctUserId) {
+export const handleGetUsers = async (
+  req: IncomingMessage,
+  res: ServerResponse,
+  userId: UserId,
+  userDB: IMemoryDB
+): Promise<unknown> => {
+  if (!userId) {
     const users = userDB.getAll();
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(users));
     return;
   }
 
-  if (!uuidValidate(correctUserId)) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end(`UserId "${correctUserId}" is invalid. Not uuid.`);
-    return;
-  }
+  const correctUserId = userId as string;
+
+  if (!uuidValidate(correctUserId)) throw new HTTPError(`UserId ${correctUserId} is invalid. Not uuid.`, 400);
 
   const user = userDB.get(correctUserId);
 
-  if (user === null) {
-    res.writeHead(404, { 'Content-Type': 'text/plain' });
-    res.end(`User with id "${correctUserId}" doesn't exist.`);
-    return;
-  }
+  if (user === null) throw new HTTPError(`User with id ${correctUserId} doesn't exist.`, 404);
 
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(user));
