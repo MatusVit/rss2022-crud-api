@@ -3,4 +3,6 @@ import { runServer } from './app';
 
 const userDB = new MemoryDB();
 
-runServer(userDB);
+export const startApp = (function () {
+  runServer(userDB);
+})();

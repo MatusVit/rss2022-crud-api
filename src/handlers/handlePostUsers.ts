@@ -1,5 +1,5 @@
-import { HTTPError } from './../errors/errors';
-import { checkUserObject, getRequestData } from './../utils/common';
+import { HTTPError } from '../errors/errors';
+import { checkUserObject, getRequestData } from '../utils/common';
 import { IUser } from 'types/entities';
 import { IncomingMessage, ServerResponse } from 'http';
 

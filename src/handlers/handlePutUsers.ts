@@ -1,6 +1,6 @@
 import { IUser } from 'types/entities';
-import { getRequestData, checkUserObject } from './../utils/common';
-import { HTTPError } from './../errors/errors';
+import { getRequestData, checkUserObject } from '../utils/common';
+import { HTTPError } from '../errors/errors';
 import { IncomingMessage, ServerResponse } from 'http';
 import { validate as uuidValidate } from 'uuid';
 

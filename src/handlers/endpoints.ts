@@ -1,4 +1,4 @@
-import { HTTPError } from './../errors/errors';
+import { HTTPError } from '../errors/errors';
 import { HTTP_METHOD, IEndpoints } from '../types/entities';
 
 import { handleDeleteUsers } from './handleDeleteUsers';
